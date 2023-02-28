@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Admin </title>
+    <link href="/Content/logo_for_header.png" rel=" shortcut icon" type="image/x-icon" />
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width" />
+    
+    <link href="Content/style.css" rel="stylesheet"/>
+
+    <script src="bundles/modernizr.css"></script>
+
+    <script src="Scripts/jquery-2.1.4.min.js"></script>
+
+    <link href="Content/chosen.min.css" rel="stylesheet" />
+    <link href="Content/bootstrap-multiselect.css" rel="stylesheet" />
+
+</head>
+<body class="skin-blue sidebar-mini">
+
+    <div class="wrapper">
+
+        <!-- Main Header -->
+        <header class="main-header">
+
+            <!-- Logo -->
+            <a href="http://forward.kg" class="logo">
+                <!-- mini logo for sidebar mini 50x50 pixels -->
+                <span class="logo-mini"><img src="/Content/logo_for_header.png" height="50" /></span>
+                <!-- logo for regular state and mobile devices -->
+                <span class="logo-lg"><img src="/Content/log.png" /></span>
+            </a>
+            
+            <!-- Header Navbar -->
+            <nav class="navbar navbar-static-top" role="navigation">
+                <!-- Sidebar toggle button-->
+                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
+                <!-- Navbar Right Menu -->
+               
+                
+            </nav>
+            
+        </header>
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="main-sidebar">
+
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar">
+
+                <!-- Sidebar user panel (optional) -->
+                
+               
+                <!-- Sidebar Menu -->
+                <ul class="sidebar-menu">
+                    
+                     
+                    </li>
+                    <li class="treeview">
+                        <a href="#"><i class='fa fa-line-chart'></i> <span>Статистика</span> <i class="fa fa-angle-left pull-right"></i></a>
+                        <ul class="treeview-menu">
+                                                                                                                                                                                                                                                                                     </ul>
+                    </li>
+                    <li class="treeview">
+                        <a href="#"><i class="fa fa-thumbs-o-down"></i> <span>Жалобы&ensp;(0)</span> <i class="fa fa-angle-left pull-right"></i></a>
+                        <ul class="treeview-menu">
+                                                                                                                                                                                                                                                                                    </ul>
+                    </li>
+
+                    <li class="treeview">
+                        <a href="#"><i class="fa fa-comments"></i> <span>Комментарий&ensp;(+0)</span> <i class="fa fa-angle-left pull-right"></i></a>
+                        <ul class="treeview-menu">
+                                                                                                                                                                                                                                                                                    </ul>
+                    </li>
+
+                  
+                  
+                 
+                    
+              
+                
+                   
+
+                   
+
+
+
+                </ul><!-- /.sidebar-menu -->
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <section class="content">
+                
+<style>
+    .content-wrapper {
+        height: 5000px;
+    }
+</style>
+<script src="ckeditor/ckeditor.js"></script>
+<script src="http://maps.googleapis.com/maps/api/js"></script>
+<script type="text/javascript">
+    $(function () {
+        $('#Region').change(function () {
+            $.getJSON('/Admin/CityList/' + $('#Region').val(), function (data) {
+                var items = '<option>Выберите город</option>';
+                $.each(data, function (i, state) {
+                    items += "<option value='" + state.Value + "'>" + state.Text + "</option>";
+                });
+                $('#City').html(items);
+            });
+        });
+    });
+    $(function () {
+        $('#City').change(function () {
+            $.getJSON('/Admin/DistrictList/' + $('#City').val(), function (data) {
+                var items = '<option>Выберите район</option>';
+                $.each(data, function (i, state) {
+                    items += "<option value='" + state.Value + "'>" + state.Text + "</option>";
+                });
+                $('#District').html(items);
+            });
+        });
+    });
+    function fileCheck(obj) {
+        var fileExtension = ['jpeg', 'jpg', 'png', 'gif', 'bmp'];
+        if ($.inArray($(obj).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+            alert("Only '.jpeg','.jpg', '.png', '.gif', '.bmp' formats are allowed.");
+        }
+    }
+    function showImage() {
+        document.getElementById('modelimage').style.display = 'none';
+    }
+    function PreviewImage(no) {
+        var oFReader = new FileReader();
+        oFReader.readAsDataURL(document.getElementById("uploadImage" + no).files[0]);
+
+        oFReader.onload = function (oFREvent) {
+            document.getElementById("uploadPreview" + no).src = oFREvent.target.result;
+        };
+    }
+    window.onload = function () {
+        var mapOptions = {
+            center: new google.maps.LatLng(43.2401128, 76.907773),
+            zoom: 14,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        };
+        var infoWindow = new google.maps.InfoWindow();
+        var latlngbounds = new google.maps.LatLngBounds();
+        var map = new google.maps.Map(document.getElementById("dvMap"), mapOptions);
+        google.maps.event.addListener(map, 'click', function (e) {
+            var latlng = new google.maps.LatLng(e.latLng.lat(), e.latLng.lng());
+            var geocoder = geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ 'latLng': latlng }, function (results, status) {
+                if (status == google.maps.GeocoderStatus.OK) {
+                    if (results[1]) {
+                        alert("Район: " + results[1].formatted_address + "\r\nАдрес: " + results[0].formatted_address);
+                        // var Address=results[1].formatted_address + "," + e.latLng.lat() + "," + e.latLng.lng() + "," + results[0].formatted_address;
+                        //$('#address').val(Address);
+                        var Address = results[0].formatted_address;
+                        $('#address').val(Address);
+
+                        var name = results[0].formatted_address;
+                        $('#name').val(name);
+
+                        var long = e.latLng.lng();
+                        $('#long').val(long);
+
+                        var lat = e.latLng.lat();
+                        $('#lat').val(lat);
+
+
+                    }
+                }
+            });
+        });
+    }
+
+</script>
+<div class="col-md-offset-2 col-md-8" style="background-color:white !important;padding-bottom:20px;">
+    <h3 class="page-header text-center">Добавить площадку</h3>
+<form action="/Tennis/Create" enctype="multipart/form-data" method="post"><input name="__RequestVerificationToken" type="hidden" value="bVpt2KXpqgtkHEYqanHzoCqeskzyHrepaWRU5rr1bzMYBfDPqLln5ANxbtObjyqHTRfjQUmfJt-ErcJREyl-ASQI0n4vNQnrgLb3ZCQ8py9x7-Pn3_KDSzL4Unje8XtN0" /><input id="Address1" name="Address1" type="hidden" value="" /><input id="name" name="Name1" type="hidden" value="" /><input id="long" name="Longitude" type="hidden" value="" /><input data-val="true" data-val-required="Укажите на карте" id="lat" name="Latitude" type="hidden" value="" /><input class="hidden" data-val="true" data-val-required="The Root field is required." id="roott" name="Root" type="text" value="" />        <div class="form-group" style="margin-top:10px;">
+            <label for="">Название заведения:</label>
+            <p>(Пример:Футбольное поле на Аль-Фараби)</p>
+            <input class="form-control" data-val="true" data-val-required="Введите название заведения" id="Name" name="Name" placeholder="Название" type="text" value="" />
+            <p style="color:red;"> <span class="field-validation-valid" data-valmsg-for="Name" data-valmsg-replace="true"></span></p>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label for="">Область:</label>
+            <select class="tex form-control" data-val="true" data-val-number="The field RegionID must be a number." data-val-required="Выберите регион" id="Region" name="RegionID"><option value="">Выберите область</option>
+<option value="1">Алматинская область</option>
+<option value="2">Акмолинская область</option>
+<option value="3">Жамбылская область</option>
+<option value="4">Карагандинская область</option>
+<option value="5">Актюбинская область</option>
+<option value="6">Атырауская область</option>
+<option value="7">Мангистауская область</option>
+<option value="8">Южно-Казахстанская область</option>
+<option value="9">Павлодарская область</option>
+<option value="10">Восточно-Казахстанская область</option>
+<option value="11">Западно-Казахстанская область</option>
+<option value="12">Костанайская область</option>
+<option value="13">Кызылординская область</option>
+<option value="14">Северо-Казахстанская область</option>
+</select>
+            <p style="color:red;">  <span class="field-validation-valid" data-valmsg-for="RegionID" data-valmsg-replace="true"></span></p>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label for="">Город:</label>
+            <select class="tex form-control" data-val="true" data-val-number="The field CityID must be a number." data-val-required="Выберите город" id="City" name="CityID"><option value="">Выберите город</option>
+<option value="1">Алматы</option>
+<option value="2">Талдыкорган</option>
+<option value="3">Астана</option>
+<option value="4">Тараз</option>
+<option value="5">Караганда</option>
+<option value="6">Актобе</option>
+<option value="7">Атырау</option>
+<option value="8">Актау</option>
+<option value="9">Шымкент</option>
+<option value="10">Аксу (Ермак)</option>
+<option value="11">Павлодар</option>
+<option value="13">Экибастуз</option>
+<option value="14">Семей </option>
+<option value="15"> Усть-Каменогорск </option>
+<option value="16">Уральск </option>
+<option value="17">Костанай </option>
+<option value="18">Петропавловск </option>
+<option value="19">Кызылорда </option>
+<option value="20">Кокшетау </option>
+</select>
+            <p style="color:red;">    <span class="field-validation-valid" data-valmsg-for="CityID" data-valmsg-replace="true"></span></p>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label for="">Район:</label>
+            <select class="tex form-control" data-val="true" data-val-number="The field DistrictID must be a number." id="District" name="DistrictID"><option value="">Выберите район</option>
+<option value="1">Алатауский район</option>
+<option value="2">Алмалинский район</option>
+<option value="3">Ауэзовский район</option>
+<option value="4">Бостандыкский район</option>
+<option value="5">Жетысуский район</option>
+<option value="6">Медеуский район</option>
+<option value="7">Наурызбайский район</option>
+<option value="8">Турксибский район</option>
+<option value="9">Есильский район</option>
+<option value="10">Алматинский район</option>
+<option value="11">Сарыаркинский район</option>
+<option value="12">Казыбек би район</option>
+<option value="13">Октябрьский район</option>
+<option value="14">Новый город</option>
+<option value="15">Старый город</option>
+<option value="16">Шанха́й </option>
+<option value="17">Курмы́ш </option>
+<option value="18">12-й микрорайон</option>
+<option value="19">11-й микрорайон</option>
+<option value="20">8-й микрорайон</option>
+<option value="21">5-й микрорайон</option>
+<option value="22">Болашак</option>
+<option value="23">Абайский район</option>
+<option value="24">Аль-Фарабийский район</option>
+<option value="25">Енбекшинский район</option>
+<option value="26">Талгарский район</option>
+<option value="27">Актогайский район</option>
+<option value="28">Баянаульский район</option>
+<option value="29">Железинский район</option>
+<option value="30">Иртышский район</option>
+<option value="31">Качирский район</option>
+<option value="32">Лебяжинский район</option>
+<option value="33">Майский район</option>
+<option value="34">Павлодарский район</option>
+<option value="35">Успенский район</option>
+<option value="36">Щербактинский район</option>
+<option value="37">Казыбек би</option>
+<option value="38">Октябрьский</option>
+</select>
+         
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label for="">Тип:</label>
+            <select class="tex form-control" data-val="true" data-val-number="The field typeid must be a number." data-val-required="Выберите тип" id="District" name="typeid"><option value="">Выберите тип</option>
+<option value="1">Большой теннис</option>
+<option value="2">Настольный теннис</option>
+<option value="3">Бадминтон</option>
+</select>
+            <p style="color:red;"> <span class="field-validation-valid" data-valmsg-for="typeid" data-valmsg-replace="true"></span></p>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label for="">Адрес:</label>
+            <input class="tex form-control" data-val="true" data-val-required="Введите Адрес" id="Address" name="Address" placeholder="Адрес" type="text" value="" />
+            <p style="color:red;">  <span class="field-validation-valid" data-valmsg-for="Address" data-valmsg-replace="true"></span></p>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label for="">Укажите на карте для удобства пользователю:</label>
+            <p>(Кликните на карте левой кнопкой мыши )</p>
+            <div id="dvMap" style="height: 400px">
+
+
+            </div>
+            <p style="color:red;">   <span class="field-validation-valid" data-valmsg-for="Latitude" data-valmsg-replace="true"></span></p>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label for="">Телефон 1:</label>
+            <input class="form-control mask" data-val="true" data-val-required="Введите номер телефона 1" id="Phone1" name="Phone1" placeholder="Номер телефона 1" type="text" value="" />
+            <p style="color:red;">   <span class="field-validation-valid" data-valmsg-for="Phone1" data-valmsg-replace="true"></span></p>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label for="">Телефон 2:</label>
+            <input class="form-control mask" id="Phone2" name="Phone2" placeholder="Номер телефона 2" type="text" value="" />
+            <span class="field-validation-valid" data-valmsg-for="Phone2" data-valmsg-replace="true"></span>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label class="col-md-12" for="C________:" style="padding-left:0px;">Cтруктура:</label>
+            <div class="col-md-4">
+                <div class="checkbox checkbox-info">
+                    <input id="checkbox7" class="styled form_struc" type="checkbox" name="Trener" value="true">
+                    <label for="checkbox7">Тренер</label>
+                </div>
+                <div class="checkbox checkbox-info">
+                    <input id="checkbox8" class="styled form_struc" type="checkbox" name="Razdevalka" value="true">
+                    <label for="checkbox8">Раздевалки</label>
+                </div>
+                <div class="checkbox checkbox-info">
+                    <input id="checkbox9" class="styled form_struc" type="checkbox" name="Sauna" value="true">
+                    <label for="checkbox9">Сауна</label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="checkbox checkbox-info">
+                    <input id="checkbox4" class="styled form_struc" type="checkbox" name="Tribuna" value="true">
+                    <label for="checkbox4"> Трибуны </label>
+                </div>
+                <div class="checkbox checkbox-info">
+                    <input id="checkbox5" class="styled form_struc" type="checkbox" name="Duwevaya" value="true">
+                    <label for="checkbox5"> Душевая </label>
+                </div>
+                <div class="checkbox checkbox-info">
+                    <input id="checkbox6" class="styled form_struc" type="checkbox" name="Osvewenie" value="true">
+                    <label for="checkbox6"> Освещение </label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="checkbox checkbox-info">
+
+                    <input class="styled form_root" type="checkbox" name="Root" id="checkbox10">
+
+                    <label for="checkbox10"> Крыша </label>
+                </div>
+
+            </div>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label class="col-md-12" for="" style="padding-left:0px;">График работы (будни):</label>
+            <div class="col-md-6" style="margin-top:10px;padding-left:0px;">
+                <p style="color:red;">
+                    <span class="field-validation-valid" data-valmsg-for="StartTime1" data-valmsg-replace="true"></span>
+                </p>
+                <div class="input-group clockpicker " data-autoclose="true">
+
+                    <input class="tex form-control" data-val="true" data-val-required="Введите время начала" id="StartTime1" name="StartTime1" placeholder="С" type="text" value="" />
+
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-time"></span>
+                    </span>
+                </div>
+            </div>
+
+
+            <div class="col-md-6" style="margin-top:10px;padding-left:0px;">
+                <p style="color:red;">
+                    <span class="field-validation-valid" data-valmsg-for="EndTime1" data-valmsg-replace="true"></span>
+                </p>
+                <div class="input-group clockpicker " data-autoclose="true">
+                    <input class="tex form-control " data-val="true" data-val-required="Введите время конца" id="EndTime1" name="EndTime1" placeholder="До" type="text" value="" />
+
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-time"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label class="col-md-12" for="" style="padding-left:0px;">График работы (выходные):</label>
+            <div class="col-md-6" style="margin-top:10px;padding-left:0px;">
+                <p style="color:red;">
+                    <span class="field-validation-valid" data-valmsg-for="StartTime11" data-valmsg-replace="true"></span>
+                </p>
+                <div class="input-group clockpicker " data-autoclose="true">
+
+                    <input class="tex form-control" data-val="true" data-val-required="Введите время начала" id="StartTime11" name="StartTime11" placeholder="С" type="text" value="" />
+
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-time"></span>
+                    </span>
+                </div>
+            </div>
+
+
+            <div class="col-md-6" style="margin-top:10px;padding-left:0px;">
+                <p style="color:red;">
+                    <span class="field-validation-valid" data-valmsg-for="EndTime11" data-valmsg-replace="true"></span>
+                </p>
+                <div class="input-group clockpicker " data-autoclose="true">
+                    <input class="tex form-control " data-val="true" data-val-required="Введите время конца" id="EndTime11" name="EndTime11" placeholder="До" type="text" value="" />
+
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-time"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label class="col-md-12" for="" style="padding-left:0px;margin-top:10px;">Покрытие:</label>
+            <select class="form-control" data-val="true" data-val-number="The field CoverTypeID must be a number." data-val-required="Выберите покрытие" id="CoverTypeID" name="CoverTypeID"><option value="">Выберите покрытие</option>
+<option value="1">Грунт</option>
+<option value="2">Искусственная трава</option>
+<option value="3">Ковровое</option>
+<option value="4">Ламинат</option>
+<option value="5">Лёд</option>
+<option value="6">Линолеум</option>
+<option value="7">Паркет </option>
+<option value="8">Песок</option>
+<option value="9">Прорезиненное</option>
+<option value="10">Татами </option>
+<option value="11">Терафлекс</option>
+<option value="12">Трава</option>
+<option value="13">Хард</option>
+</select>
+            <p style="color:red;">   <span class="field-validation-valid" data-valmsg-for="CoverTypeID" data-valmsg-replace="true"></span></p>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label for="">Цена за час:</label>
+            <input class="tex form-control" data-val="true" data-val-number="The field cenachas must be a number." id="cenachas" name="cenachas" placeholder="Цена за час" type="number" value="" />
+            <p style="color:red;">  <span class="field-validation-valid" data-valmsg-for="cenachas" data-valmsg-replace="true"></span></p>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label class="col-md-12" for="" style="padding-left:0px;">Описание:</label>
+            <p>(Постарайтесь подробнее описать приемущества вашей площадки, указать об имеющихся услугах )</p>
+            <textarea class="tex form-control ckeditor" cols="20" data-val="true" data-val-required="Введите описание" id="editor1" name="Description" placeholder="Описание" rows="2">
+</textarea>
+            <p style="color:red;">   <span class="field-validation-valid" data-valmsg-for="Description" data-valmsg-replace="true"></span></p>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label class="col-md-12" for="" style="padding-left:0px;">Фотографии:</label>
+            <p>Загрузите Ваш логотип либо самую привлекательную фотографию (Пример названия фотографии: futbolnoe_pole)</p>
+            <div class="col-md-12">
+                <table class="table table-responsive">
+                    <tr>
+                        <td>
+                            <label for="uploadImage1"><img id="uploadPreview1" src="/Images/plus.jpg" class="custom-file-upload img-responsive" alt="Titul" style="width:100px;height:100px;" /><br /></label>
+                            <input id="uploadImage1" type="file" name="uploadImage1" onchange="PreviewImage(1);" style="display:none;" />
+                        </td>
+                        <td>
+                            <label for="uploadImage2"><img id="uploadPreview2" src="/Images/plus.jpg" class="custom-file-upload img-responsive" alt="Titul" style="width:100px;height:100px;" /><br /></label>
+                            <input id="uploadImage2" type="file" name="uploadImage2" onchange="PreviewImage(2);" style="display:none;" />
+                        </td>
+                        <td>
+                            <label for="uploadImage3"><img id="uploadPreview3" src="/Images/plus.jpg" class="custom-file-upload img-responsive" alt="Titul" style="width:100px;height:100px;" /><br /></label>
+                            <input id="uploadImage3" type="file" name="uploadImage3" onchange="PreviewImage(3);" style="display:none;" />
+                        </td>
+                        <td>
+
+                            <label for="uploadImage4"><img id="uploadPreview4" src="/Images/plus.jpg" class="custom-file-upload img-responsive" alt="Titul" style="width:100px;height:100px;" /><br /></label>
+                            <input id="uploadImage4" type="file" name="uploadImage4" onchange="PreviewImage(4);" style="display:none;" />
+                        </td>
+                        <td>
+                            <label for="uploadImage5"><img id="uploadPreview5" src="/Images/plus.jpg" class="custom-file-upload img-responsive" alt="Titul" style=" width:100px;height:100px;" /><br /></label>
+                            <input id="uploadImage5" type="file" name="uploadImage5" onchange="PreviewImage(5);" style="display:none;" />
+                        </td>
+                        <td>
+
+                            <label for="uploadImage6"><img id="uploadPreview6" src="/Images/plus.jpg" class="custom-file-upload img-responsive" alt="Titul" style="width:100px;height:100px;" /><br /></label>
+                            <input id="uploadImage6" type="file" name="uploadImage6" onchange="PreviewImage(6);" style="display:none;" />
+                        </td>
+                        <td>
+                            <label for="uploadImage7"><img id="uploadPreview7" src="/Images/plus.jpg" class="custom-file-upload img-responsive" alt="Titul" style=" width:100px;height:100px;" /><br /></label>
+                            <input id="uploadImage7" type="file" name="uploadImage7" onchange="PreviewImage(7);" style="display:none;" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label for="">Ссылка на сайт:</label>
+            <input class="form-control" id="sait" name="sait" placeholder="Введите адрес вашего сайта либо оставьте незаполненным" type="text" value="" />
+
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label for="">Ссылка на страницу вконтакте:</label>
+            <input class="form-control" id="vk" name="vk" placeholder="Введите адрес на страницу вконтакте либо оставьте незаполненным" type="text" value="" />
+
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label for="">Ссылка на страницу facebook:</label>
+            <input class="form-control" id="facebook" name="facebook" placeholder="Введите адрес на страницу facebook либо оставьте незаполненным" type="text" value="" />
+
+        </div>
+        <div class="form-group" style="margin-top:10px;">
+            <label for="">Ссылка на страницу instagram:</label>
+            <input class="form-control" id="instagram" name="instagram" placeholder="Введите адрес на страницу instagram либо оставьте незаполненным" type="text" value="" />
+
+        </div>
+        <div class="col-md-offset-5 col-md-12" style="margin-top:10px;">
+            <input id="submit" type="submit" value="Создать" class="btn btn-primary btn-lg create" />
+        </div>
+</form>
+</div>
+<div id="loading" class="hidden">
+    <img src="/Content/loading_spinner.gif" />
+    <h1 style="margin-top:200px;">Пожалуйста подождите. Идёт загрузка фотографий...</h1>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".mask").mask("+7(999)999-99-99");
+        $('.clockpicker').clockpicker();
+        $('.clockpicker').clockpicker();
+        $(function () {
+            $('#submit').click(function () {
+                document.getElementById('loading').classList.remove('hidden');
+                var dates = [];
+                var types = [];
+                var struc = [];
+                var root = [];
+                $(".form_datetime").each(function () {
+
+                    if ($(this).is("input")) {
+                        dates.push($(this).val());
+                    }
+                    if ($(this).is("select")) {
+                        dates.push($(this).val());
+                    }
+                });
+
+                var dateForProc = dates.join("*");
+                $('#date').val(dateForProc);
+
+
+                $(".form_struc").each(function () {
+                    if ($(this).is(':checkbox')) {
+                        if ($(this).is(':checked')) {
+                            struc.push("1");
+                        }
+                        else {
+                            struc.push("0");
+                        }
+                    }
+
+                });
+                var dateForstruc = struc.join(",");
+                $('#structura').val(dateForstruc);
+
+                $(".form_root").each(function () {
+                    if ($(this).is(':checkbox')) {
+                        if ($(this).is(':checked')) {
+                            root.push("true");
+                        }
+                        else {
+                            root.push("false");
+                        }
+                    }
+
+                });
+                var dateForroot = root;
+                $('#roott').val(dateForroot);
+
+
+
+                $(".types select option:selected").each(function () {
+                    types.push($(this).val());
+                });
+                var p = types.join(",");
+                $('#types').val(p);
+
+            });
+
+
+        });
+    });
+
+</script>
+
+                <!-- Your Page Content Here -->
+
+            </section><!-- /.content -->
+        </div><!-- /.content-wrapper -->
+        <!-- Control Sidebar -->
+
+    </div><!-- ./wrapper -->
+    <script src="Content/js12.js"></script>
+
+    <script src="bundles/jquery?v="></script>
+
+    <script src="bundles/bootstrap"></script>
+
+    <script src="bundles/datetime.js"></script>
+
+    
+
+    <script src="Scripts/jquery.maskedinput.min.js"></script>
+    <script src="Scripts/bootstrap-clockpicker.min.js"></script>
+    <script src="Scripts/chosen.jquery.min.js"></script>
+</body>
+</html>
